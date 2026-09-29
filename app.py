@@ -14,7 +14,7 @@ import zipfile
 import psutil
 
 app = Flask(__name__)
-app.secret_key = 'SEPNIX-VPS-SUPER-SECRET-KEY-2026'
+app.secret_key = 'AVI VPS-super-secret-key-2026'
 app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
 
 USERS_FILE = 'users.json'
@@ -26,13 +26,7 @@ NET_STATS = {}
 os.makedirs(BOTS_DIR, exist_ok=True)
 
 # ============================================
-# ADMIN CREDENTIALS (HARDCODED)
-# ============================================
-ADMIN_USERNAME = 'Sepnix'
-ADMIN_PASSWORD = 'Sepnix143'
-
-# ============================================
-# RATE LIMIT
+# রেট লিমিট
 # ============================================
 
 class RateLimiter:
@@ -42,7 +36,7 @@ class RateLimiter:
         users = load_users()
         server = None
         for uname, data in users.items():
-            if uname == ADMIN_USERNAME: continue
+            if uname == 'admin': continue
             servers = data.get('servers', [])
             if not isinstance(servers, list): continue
             for s in servers:
@@ -70,7 +64,7 @@ class RateLimiter:
 rate_limiter = RateLimiter()
 
 # ============================================
-# AUTO-RESTART
+# অটো-রিস্টার্ট
 # ============================================
 
 def should_auto_restart(server_id):
@@ -87,7 +81,7 @@ def should_auto_restart(server_id):
     return True
 
 # ============================================
-# HELPERS
+# হেল্পার
 # ============================================
 
 def generate_random_password(length=10):
@@ -96,18 +90,13 @@ def generate_random_password(length=10):
 
 def load_users():
     if not os.path.exists(USERS_FILE):
-        default = {ADMIN_USERNAME: {"password": ADMIN_PASSWORD, "role": "admin"}}
+        default = {"admin": {"password": "admin123", "role": "admin"}}
         save_users(default)
         return default
     with open(USERS_FILE, 'r', encoding='utf-8') as f:
         data = json.load(f)
-    # Ensure admin exists with correct credentials
-    if ADMIN_USERNAME not in data:
-        data[ADMIN_USERNAME] = {"password": ADMIN_PASSWORD, "role": "admin"}
-        save_users(data)
-    else:
-        data[ADMIN_USERNAME]['password'] = ADMIN_PASSWORD
-        data[ADMIN_USERNAME]['role'] = 'admin'
+    if 'admin' not in data:
+        data['admin'] = {"password": "admin123", "role": "admin"}
         save_users(data)
     return data
 
@@ -123,7 +112,7 @@ def get_server_dir(server_id):
 def check_server_valid(server_id):
     users = load_users()
     for uname, data in users.items():
-        if uname == ADMIN_USERNAME: continue
+        if uname == 'admin': continue
         servers = data.get('servers', [])
         if not isinstance(servers, list): continue
         for s in servers:
@@ -141,7 +130,7 @@ def check_server_valid(server_id):
 def get_server_by_id(server_id):
     users = load_users()
     for uname, data in users.items():
-        if uname == ADMIN_USERNAME: continue
+        if uname == 'admin': continue
         servers = data.get('servers', [])
         if not isinstance(servers, list): continue
         for s in servers:
@@ -153,18 +142,18 @@ def create_default_files(server_dir):
     main_py = os.path.join(server_dir, 'main.py')
     if not os.path.exists(main_py):
         with open(main_py, 'w', encoding='utf-8') as f:
-            f.write('''# SEPNIX VPS HOSTING - Default Bot
+            f.write('''# AVI VPS HOSTING - Default Bot
 import time
 
-print("=" * 50)
-print("  SEPNIX VPS HOSTING - Bot Running")
-print("  Powered by SEPNIX Cloud")
-print("=" * 50)
+print("=" * 40)
+print("Bot is running on AVI VPS HOSTING")
+print("Server is ready!")
+print("=" * 40)
 
 counter = 0
 while True:
     counter += 1
-    print(f"[{time.strftime('%H:%M:%S')}] Heartbeat #{counter} | SEPNIX Active")
+    print(f"[{time.strftime('%H:%M:%S')}] Heartbeat #{counter} | Server active")
     time.sleep(10)
 ''')
     
@@ -174,7 +163,7 @@ while True:
             f.write('# Add your pip packages here\n')
 
 # ============================================
-# RUN BOT
+# বট রান
 # ============================================
 
 def run_bot(server_id, main_file='main.py', requirements_file='requirements.txt'):
@@ -201,7 +190,7 @@ def run_bot(server_id, main_file='main.py', requirements_file='requirements.txt'
     
     server, _ = get_server_by_id(server_id)
     cpu_limit = server.get('cpu_limit', 80) if server else 80
-    log(f"[{ts()}] SEPNIX VPS - Checking rate limit...")
+    log(f"[{ts()}] Checking rate limit...")
     log(f"[{ts()}] Rate limit: {cpu_limit}%")
     log("")
     
@@ -248,7 +237,6 @@ def run_bot(server_id, main_file='main.py', requirements_file='requirements.txt'
     log("")
     log(f"[{ts()}] Run: python {main_file}")
     log(f"[{ts()}] Python {sys.version.split()[0]}")
-    log(f"[{ts()}] Powered by SEPNIX VPS HOSTING")
     log("")
     
     try:
@@ -282,7 +270,7 @@ def run_bot(server_id, main_file='main.py', requirements_file='requirements.txt'
                     
                     users = load_users()
                     for uname, data in users.items():
-                        if uname == ADMIN_USERNAME: continue
+                        if uname == 'admin': continue
                         servers = data.get('servers', [])
                         if not isinstance(servers, list): continue
                         for s in servers:
@@ -350,7 +338,7 @@ def monitor_bot(server_id, pid):
         if new_pid:
             users = load_users()
             for uname, data in users.items():
-                if uname == ADMIN_USERNAME: continue
+                if uname == 'admin': continue
                 servers = data.get('servers', [])
                 if not isinstance(servers, list): continue
                 for s in servers:
@@ -366,7 +354,7 @@ def monitor_bot(server_id, pid):
     else:
         users = load_users()
         for uname, data in users.items():
-            if uname == ADMIN_USERNAME: continue
+            if uname == 'admin': continue
             servers = data.get('servers', [])
             if not isinstance(servers, list): continue
             for s in servers:
@@ -409,7 +397,89 @@ def format_bytes(kb):
     return f"{gb:.2f} GB"
 
 # ============================================
-# ROUTES
+# 🔥 পাবলিক API - সার্ভার তৈরি
+# ============================================
+
+@app.route('/api/create', methods=['GET'])
+def api_create_server():
+    username = request.args.get('username', '').strip()
+    password = request.args.get('password', '').strip()
+    server_type = request.args.get('type', 'python').strip()
+    ram = request.args.get('ram', '512MB').strip()
+    disk = request.args.get('disk', '1GB').strip()
+    cpu_limit = int(request.args.get('cpu', '80'))
+    days = int(request.args.get('days', '7'))
+    
+    if not password:
+        password = generate_random_password(10)
+    
+    if not username:
+        username = f"AVI_VPS_CODEX{random.randint(10000, 99999)}"
+    
+    if len(username) < 3:
+        return jsonify({'status': 'error', 'message': 'Username must be at least 3 characters!'}), 400
+    
+    if len(password) < 4:
+        return jsonify({'status': 'error', 'message': 'Password must be at least 4 characters!'}), 400
+    
+    if cpu_limit < 10 or cpu_limit > 100:
+        return jsonify({'status': 'error', 'message': 'CPU limit must be between 10 and 100!'}), 400
+    
+    if days < 1 or days > 365:
+        return jsonify({'status': 'error', 'message': 'Days must be between 1 and 365!'}), 400
+    
+    users = load_users()
+    
+    if username in users:
+        return jsonify({'status': 'error', 'message': f"Username '{username}' already exists!"}), 400
+    
+    server_id = str(uuid.uuid4())[:8]
+    expiry_date = datetime.now() + timedelta(days=days)
+    
+    create_default_files(get_server_dir(server_id))
+    
+    host = request.host
+    is_local = host.startswith('localhost') or host.startswith('127.0.0.1') or host.startswith('192.168')
+    scheme = 'http' if is_local else 'https'
+    full_url = f"{scheme}://{host}/{server_id}/login"
+    
+    new_server = {
+        'server_id': server_id,
+        'login_url': f"/{server_id}/login",
+        'dashboard_url': f"/{server_id}/home",
+        'full_link': full_url,
+        'type': server_type,
+        'ram': ram, 'disk': disk,
+        'status': 'stopped', 'pid': None,
+        'created': str(datetime.now()),
+        'expiry': str(expiry_date),
+        'main_file': 'main.py',
+        'requirements_file': 'requirements.txt',
+        'cpu_limit': cpu_limit,
+        'rate_limit_exceeded': False,
+        'stopped_by_user': False
+    }
+    
+    users[username] = {'password': password, 'role': 'user', 'servers': [new_server]}
+    save_users(users)
+    
+    return jsonify({
+        'status': 'success',
+        'message': 'Panel created successfully!',
+        'username': username,
+        'password': password,
+        'server_type': server_type,
+        'ram': ram,
+        'disk': disk,
+        'cpu_limit': cpu_limit,
+        'validity': f'{days} days',
+        'expiry_date': expiry_date.strftime('%Y-%m-%d'),
+        'full_url': full_url,
+        'server_id': server_id
+    }), 200
+
+# ============================================
+# রাউটস
 # ============================================
 
 @app.route('/')
@@ -426,8 +496,8 @@ def login():
         username = request.form.get('username', '')
         password = request.form.get('password', '')
         users = load_users()
-        if username == ADMIN_USERNAME and password == users.get(ADMIN_USERNAME, {}).get('password'):
-            session['user'] = ADMIN_USERNAME
+        if username == 'admin' and password == users.get('admin', {}).get('password'):
+            session['user'] = 'admin'
             session['role'] = 'admin'
             return redirect(url_for('admin_dashboard'))
         return render_template('login.html', error="Invalid credentials!")
@@ -444,7 +514,7 @@ def server_login(server_id):
         password = request.form.get('password', '')
         users = load_users()
         for uname, data in users.items():
-            if uname == ADMIN_USERNAME: continue
+            if uname == 'admin': continue
             servers = data.get('servers', [])
             if not isinstance(servers, list): continue
             for s in servers:
@@ -483,7 +553,7 @@ def logout():
     return redirect(url_for('login'))
 
 # ============================================
-# ADMIN
+# অ্যাডমিন
 # ============================================
 
 @app.route('/admin')
@@ -495,7 +565,7 @@ def admin_dashboard():
     total_servers = 0
     total_running = 0
     for uname, data in users.items():
-        if uname == ADMIN_USERNAME: continue
+        if uname == 'admin': continue
         servers = data.get('servers', [])
         if not isinstance(servers, list): servers = []
         running = sum(1 for s in servers if isinstance(s, dict) and s.get('status') == 'running')
@@ -552,8 +622,7 @@ def create_server():
         'success': True, 'username': username, 'password': password,
         'login_url': new_server['login_url'],
         'hostname': new_server['full_link'],
-        'server_id': server_id,
-        'cpu_limit': cpu_limit
+        'server_id': server_id
     })
 
 @app.route('/admin/set_rate_limit/<server_id>', methods=['POST'])
@@ -563,7 +632,7 @@ def set_rate_limit(server_id):
     cpu_limit = int(request.get_json().get('cpu_limit', 80))
     users = load_users()
     for uname, udata in users.items():
-        if uname == ADMIN_USERNAME: continue
+        if uname == 'admin': continue
         servers = udata.get('servers', [])
         if not isinstance(servers, list): continue
         for s in servers:
@@ -594,13 +663,11 @@ def delete_server(username, server_id):
     return jsonify({'success': True})
 
 # ============================================
-# BOT APIs
+# বট API
 # ============================================
 
 @app.route('/api/run/<server_id>', methods=['POST'])
 def api_run(server_id):
-    if 'user' not in session:
-        return jsonify({'status': 'error', 'msg': 'Unauthorized'}), 403
     server, _ = get_server_by_id(server_id)
     if not server: return jsonify({'status': 'error', 'msg': 'Not found'})
     if server.get('status') == 'running': return jsonify({'status': 'error', 'msg': 'Already running!'})
@@ -613,7 +680,7 @@ def api_run(server_id):
     if pid:
         users = load_users()
         for uname, data in users.items():
-            if uname == ADMIN_USERNAME: continue
+            if uname == 'admin': continue
             servers = data.get('servers', [])
             if not isinstance(servers, list): continue
             for s in servers:
@@ -629,8 +696,6 @@ def api_run(server_id):
 
 @app.route('/api/stop/<server_id>', methods=['POST'])
 def api_stop(server_id):
-    if 'user' not in session:
-        return jsonify({'status': 'error', 'msg': 'Unauthorized'}), 403
     server, _ = get_server_by_id(server_id)
     if not server: return jsonify({'status': 'error', 'msg': 'Not found'})
     
@@ -638,7 +703,7 @@ def api_stop(server_id):
     
     users = load_users()
     for uname, data in users.items():
-        if uname == ADMIN_USERNAME: continue
+        if uname == 'admin': continue
         servers = data.get('servers', [])
         if not isinstance(servers, list): continue
         for s in servers:
@@ -652,15 +717,13 @@ def api_stop(server_id):
     log_file = os.path.join(get_server_dir(server_id), 'output.log')
     try:
         with open(log_file, 'a', encoding='utf-8') as f:
-            f.write(f"\n[{datetime.now().strftime('%I:%M:%S %p')}] Server stopped by SEPNIX user\n")
+            f.write(f"\n[{datetime.now().strftime('%I:%M:%S %p')}] Server stopped by user\n")
     except: pass
     
     return jsonify({'status': 'success', 'msg': 'Stopped'})
 
 @app.route('/api/logs/<server_id>')
 def api_logs(server_id):
-    if 'user' not in session:
-        return jsonify({'logs': ''}), 403
     log_file = os.path.join(get_server_dir(server_id), 'output.log')
     if os.path.exists(log_file):
         with open(log_file, 'r', encoding='utf-8') as f: logs = f.read()
@@ -669,8 +732,6 @@ def api_logs(server_id):
 
 @app.route('/api/clear_logs/<server_id>', methods=['POST'])
 def api_clear_logs(server_id):
-    if 'user' not in session:
-        return jsonify({'status': 'error'}), 403
     log_file = os.path.join(get_server_dir(server_id), 'output.log')
     try:
         if os.path.exists(log_file):
@@ -681,8 +742,6 @@ def api_clear_logs(server_id):
 
 @app.route('/api/command', methods=['POST'])
 def api_command():
-    if 'user' not in session:
-        return jsonify({'status': 'error'}), 403
     data = request.get_json()
     cmd = data.get('cmd', '')
     server_id = data.get('server_id', '')
@@ -698,8 +757,6 @@ def api_command():
 
 @app.route('/api/stats/<server_id>')
 def api_stats(server_id):
-    if 'user' not in session:
-        return jsonify({'cpu': '0%', 'ram': '0 MB', 'uptime': '0h', 'status': 'unknown', 'cpu_limit': 80, 'net_in': '0 KB', 'net_out': '0 KB'}), 403
     server, _ = get_server_by_id(server_id)
     if not server:
         return jsonify({'cpu': '0%', 'ram': '0 MB', 'uptime': '0h', 'status': 'unknown', 'cpu_limit': 80, 'net_in': '0 KB', 'net_out': '0 KB'})
@@ -725,7 +782,7 @@ def api_stats(server_id):
     return jsonify({'cpu': cpu, 'ram': ram, 'uptime': uptime, 'net_in': net_in, 'net_out': net_out, 'cpu_limit': server.get('cpu_limit', 80), 'status': server.get('status', 'stopped')})
 
 # ============================================
-# CHANGE PASSWORD
+# পাসওয়ার্ড চেঞ্জ
 # ============================================
 
 @app.route('/api/change_password/<server_id>', methods=['POST'])
@@ -735,16 +792,14 @@ def api_change_password(server_id):
     current_password = data.get('current_password', '')
     new_password = data.get('new_password', '')
     
-    if not new_password: return jsonify({'error': 'New password required!'})
+    if not current_password or not new_password: return jsonify({'error': 'All fields are required!'})
     if len(new_password) < 4: return jsonify({'error': 'Password must be at least 4 characters!'})
     
     users = load_users()
     username = session.get('user')
     
     if username in users:
-        if username == ADMIN_USERNAME:
-            return jsonify({'error': 'Admin password cannot be changed here!'}), 403
-        if not current_password or users[username].get('password') == current_password:
+        if users[username].get('password') == current_password:
             users[username]['password'] = new_password
             save_users(users)
             return jsonify({'success': True, 'msg': 'Password changed!'})
@@ -752,13 +807,12 @@ def api_change_password(server_id):
     return jsonify({'error': 'User not found!'}), 404
 
 # ============================================
-# GITHUB DEPLOY
+# 🔥 GITHUB API (Git ছাড়া Python Download)
 # ============================================
 
 @app.route('/api/github/deploy/<server_id>', methods=['POST'])
 def api_github_deploy(server_id):
-    if 'user' not in session:
-        return jsonify({'status': 'error', 'msg': 'Unauthorized'}), 403
+    """Download GitHub repo without git - using Python requests"""
     data = request.get_json()
     repo_url = data.get('repo_url', '').strip()
     access_token = data.get('access_token', '').strip()
@@ -770,9 +824,10 @@ def api_github_deploy(server_id):
     server_dir = get_server_dir(server_id)
     log_file = os.path.join(server_dir, 'github_deploy.log')
     
+    # Clear old deploy log
     try:
         with open(log_file, 'w', encoding='utf-8') as f:
-            f.write(f"[{datetime.now().strftime('%I:%M:%S %p')}] SEPNIX GitHub Deployment Started...\n")
+            f.write(f"[{datetime.now().strftime('%I:%M:%S %p')}] Starting GitHub deployment...\n")
             f.write(f"[{datetime.now().strftime('%I:%M:%S %p')}] Repository: {repo_url}\n")
             f.write(f"[{datetime.now().strftime('%I:%M:%S %p')}] Type: {'Private' if is_private else 'Public'}\n")
             f.write("─" * 40 + "\n")
@@ -782,6 +837,7 @@ def api_github_deploy(server_id):
     def deploy_thread():
         try:
             import requests
+            import shutil
             
             def deploy_log(msg):
                 try:
@@ -793,8 +849,13 @@ def api_github_deploy(server_id):
             
             deploy_log("Preparing deployment...")
             
+            # Parse GitHub URL → owner/repo/branch
+            # Support: https://github.com/user/repo or https://github.com/user/repo.git
+            # Also: https://github.com/user/repo/tree/branch
+            
             clean_url = repo_url.replace('.git', '').rstrip('/')
             
+            # Extract owner and repo
             if 'github.com' not in clean_url:
                 deploy_log("❌ Error: Only GitHub URLs are supported!")
                 return
@@ -807,8 +868,9 @@ def api_github_deploy(server_id):
             
             owner = parts[0]
             repo = parts[1]
-            branch = 'main'
+            branch = 'main'  # default branch
             
+            # Check if branch is specified (tree/branch_name)
             if len(parts) > 3 and parts[2] == 'tree':
                 branch = parts[3]
             
@@ -817,6 +879,7 @@ def api_github_deploy(server_id):
             deploy_log(f"Branch: {branch}")
             deploy_log(f"Downloading ZIP archive...")
             
+            # Build API URL
             api_url = f"https://api.github.com/repos/{owner}/{repo}/zipball/{branch}"
             
             headers = {'Accept': 'application/vnd.github.v3+json'}
@@ -824,20 +887,28 @@ def api_github_deploy(server_id):
                 headers['Authorization'] = f'token {access_token}'
                 deploy_log("Using access token for authentication")
             
+            # Download ZIP
             response = requests.get(api_url, headers=headers, stream=True, timeout=60)
             
             if response.status_code == 200:
                 deploy_log("✓ Repository downloaded successfully!")
                 deploy_log("Extracting files...")
                 
+                # Save to temp zip
                 temp_zip = os.path.join(server_dir, '_github_temp.zip')
                 with open(temp_zip, 'wb') as f:
                     for chunk in response.iter_content(chunk_size=8192):
                         f.write(chunk)
                 
+                # Extract
                 try:
                     with zipfile.ZipFile(temp_zip, 'r') as zf:
+                        # GitHub zipball has a root folder like: owner-repo-commit_hash
+                        # Extract everything inside that folder
+                        root_folder = zf.namelist()[0].split('/')[0]
+                        
                         for member in zf.namelist():
+                            # Skip the root folder
                             relative_path = '/'.join(member.split('/')[1:])
                             if not relative_path:
                                 continue
@@ -845,19 +916,23 @@ def api_github_deploy(server_id):
                             target_path = os.path.join(server_dir, relative_path)
                             
                             if member.endswith('/'):
+                                # Directory
                                 os.makedirs(target_path, exist_ok=True)
                             else:
+                                # File
                                 os.makedirs(os.path.dirname(target_path), exist_ok=True)
                                 with zf.open(member) as source, open(target_path, 'wb') as target:
                                     shutil.copyfileobj(source, target)
                                 deploy_log(f"  ✓ {relative_path}")
                     
                     deploy_log("")
-                    deploy_log("✅ SEPNIX Deployment completed successfully!")
+                    deploy_log("✅ Deployment completed successfully!")
+                    deploy_log(f"Files extracted to: {server_dir}")
                     
                 except Exception as e:
                     deploy_log(f"❌ Extraction error: {str(e)}")
                 finally:
+                    # Clean up temp zip
                     try:
                         os.remove(temp_zip)
                     except:
@@ -865,13 +940,23 @@ def api_github_deploy(server_id):
                     
             elif response.status_code == 404:
                 deploy_log("❌ Error: Repository not found!")
+                deploy_log("Check if the URL is correct and the repo is accessible")
             elif response.status_code == 401:
                 deploy_log("❌ Error: Authentication failed!")
+                deploy_log("Check your access token (for private repos)")
             elif response.status_code == 403:
                 deploy_log("❌ Error: Rate limit exceeded or access denied!")
+                deploy_log("Try again later or use an access token")
             else:
                 deploy_log(f"❌ Error: HTTP {response.status_code}")
+                deploy_log(f"Response: {response.text[:200]}")
             
+        except requests.exceptions.Timeout:
+            try:
+                with open(log_file, 'a', encoding='utf-8') as f:
+                    f.write(f"[{datetime.now().strftime('%I:%M:%S %p')}] ❌ Error: Connection timeout! Check your internet.\n")
+            except:
+                pass
         except Exception as e:
             try:
                 with open(log_file, 'a', encoding='utf-8') as f:
@@ -884,8 +969,7 @@ def api_github_deploy(server_id):
 
 @app.route('/api/github/logs/<server_id>')
 def api_github_logs(server_id):
-    if 'user' not in session:
-        return jsonify({'logs': ''}), 403
+    """Get GitHub deployment logs"""
     log_file = os.path.join(get_server_dir(server_id), 'github_deploy.log')
     if os.path.exists(log_file):
         try:
@@ -899,8 +983,7 @@ def api_github_logs(server_id):
 
 @app.route('/api/github/clear_logs/<server_id>', methods=['POST'])
 def api_github_clear_logs(server_id):
-    if 'user' not in session:
-        return jsonify({'status': 'error'}), 403
+    """Clear GitHub deployment logs"""
     log_file = os.path.join(get_server_dir(server_id), 'github_deploy.log')
     try:
         if os.path.exists(log_file):
@@ -910,13 +993,11 @@ def api_github_clear_logs(server_id):
         return jsonify({'status': 'error'}), 500
 
 # ============================================
-# FILE APIs
+# ফাইল API
 # ============================================
 
 @app.route('/api/files/<server_id>')
 def api_files(server_id):
-    if 'user' not in session:
-        return jsonify({'files': []}), 403
     folder = request.args.get('folder', '')
     server_dir = get_server_dir(server_id)
     if folder:
@@ -935,8 +1016,6 @@ def api_files(server_id):
 
 @app.route('/api/file/<server_id>', methods=['GET'])
 def api_get_file(server_id):
-    if 'user' not in session:
-        return jsonify({'error': 'Unauthorized'}), 403
     filename = request.args.get('filename', '')
     filepath = os.path.join(get_server_dir(server_id), filename)
     if os.path.exists(filepath) and os.path.isfile(filepath):
@@ -945,8 +1024,6 @@ def api_get_file(server_id):
 
 @app.route('/api/file/<server_id>', methods=['POST'])
 def api_save_file(server_id):
-    if 'user' not in session:
-        return jsonify({'error': 'Unauthorized'}), 403
     data = request.get_json()
     filepath = os.path.join(get_server_dir(server_id), data.get('filename', ''))
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
@@ -955,8 +1032,6 @@ def api_save_file(server_id):
 
 @app.route('/api/file/<server_id>', methods=['DELETE'])
 def api_delete_file(server_id):
-    if 'user' not in session:
-        return jsonify({'error': 'Unauthorized'}), 403
     data = request.get_json()
     filepath = os.path.join(get_server_dir(server_id), data.get('filename', ''))
     if os.path.exists(filepath):
@@ -966,8 +1041,6 @@ def api_delete_file(server_id):
 
 @app.route('/api/upload/<server_id>', methods=['POST'])
 def api_upload(server_id):
-    if 'user' not in session:
-        return jsonify({'error': 'Unauthorized'}), 403
     if 'file' not in request.files: return jsonify({'error': 'No file'}), 400
     folder = request.form.get('folder', '')
     server_dir = get_server_dir(server_id)
@@ -980,16 +1053,12 @@ def api_upload(server_id):
 
 @app.route('/api/create_folder/<server_id>', methods=['POST'])
 def api_create_folder(server_id):
-    if 'user' not in session:
-        return jsonify({'error': 'Unauthorized'}), 403
     data = request.get_json()
     os.makedirs(os.path.join(get_server_dir(server_id), data.get('foldername', '')), exist_ok=True)
     return jsonify({'success': True})
 
 @app.route('/api/rename/<server_id>', methods=['POST'])
 def api_rename(server_id):
-    if 'user' not in session:
-        return jsonify({'error': 'Unauthorized'}), 403
     d = request.get_json()
     server_dir = get_server_dir(server_id)
     old_path = os.path.join(server_dir, d.get('old_name', ''))
@@ -1001,8 +1070,6 @@ def api_rename(server_id):
 
 @app.route('/api/unzip/<server_id>', methods=['POST'])
 def api_unzip(server_id):
-    if 'user' not in session:
-        return jsonify({'error': 'Unauthorized'}), 403
     data = request.get_json()
     zip_path = os.path.join(get_server_dir(server_id), data.get('filename', ''))
     if os.path.exists(zip_path) and zip_path.endswith('.zip'):
@@ -1014,20 +1081,16 @@ def api_unzip(server_id):
 
 @app.route('/api/get_startup/<server_id>')
 def api_get_startup(server_id):
-    if 'user' not in session:
-        return jsonify({'error': 'Unauthorized'}), 403
     server, _ = get_server_by_id(server_id)
     if server: return jsonify({'main_file': server.get('main_file', 'main.py'), 'requirements_file': server.get('requirements_file', 'requirements.txt')})
     return jsonify({'main_file': 'main.py', 'requirements_file': 'requirements.txt'})
 
 @app.route('/api/set_startup/<server_id>', methods=['POST'])
 def api_set_startup(server_id):
-    if 'user' not in session:
-        return jsonify({'error': 'Unauthorized'}), 403
     d = request.get_json()
     users = load_users()
     for uname, udata in users.items():
-        if uname == ADMIN_USERNAME: continue
+        if uname == 'admin': continue
         servers = udata.get('servers', [])
         if not isinstance(servers, list): continue
         for s in servers:
@@ -1039,17 +1102,16 @@ def api_set_startup(server_id):
     return jsonify({'error': 'Not found'}), 404
 
 # ============================================
-# START
+# স্টার্ট
 # ============================================
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    print("\n" + "=" * 55)
-    print("  🔥 SEPNIX VPS HOSTING - PREMIUM EDITION")
-    print("=" * 55)
-    print(f"  📍 Landing: http://localhost:{port}")
-    print(f"  📍 Admin Login: http://localhost:{port}/login")
-    print(f"  👑 Admin: {ADMIN_USERNAME} / {ADMIN_PASSWORD}")
-    print(f"  🚫 Public API: DISABLED")
-    print("=" * 55 + "\n")
-    app.run(debug=False, host='0.0.0.0', port=port)
+    print("\n" + "=" * 50)
+    print("🚀 AVI VPS HOSTING - FINAL")
+    print("=" * 50)
+    print("📍 Landing: http://localhost:5000")
+    print("📍 Admin: http://localhost:5000/login")
+    print("🔗 API: http://localhost:5000/api/create")
+    print("👤 admin / admin123")
+    print("=" * 50 + "\n")
+    app.run(debug=True, host='0.0.0.0', port=5000)
